@@ -1,17 +1,20 @@
 [user]
 	name = akingo55
-	email = xxx@xxx
+	email = xxxx
 
 [alias]
 	st = status
 	cm = commit
 	graph = log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'
 	gr = graph
-	pl = pull
-	ps = push
+	aa = add --all
+	co = checkout
 
 [status]
 	showUntrackedFiles = all
 
 [push]
 	default = simple
+
+[ghq]
+	root = ~/repo
