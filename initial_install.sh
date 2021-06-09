@@ -26,3 +26,6 @@ brew install pyenv
 
 # aws
 brew install awscli aws-vault
+
+# terraform
+brew install tfenv

@@ -9,6 +9,7 @@
 	gr = graph
 	aa = add --all
 	co = checkout
+	df = diff
 
 [status]
 	showUntrackedFiles = all
