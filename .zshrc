@@ -5,7 +5,9 @@ PROMPT="%B%F{cyan}%n@%m%f%b:%B%F{blue}%~%f%b%# "
 alias ll='ls -l'
 alias la='ls -a'
 alias lt='ls -lt'
+alias lat='ls -lat'
 alias history='history -Di'
+alias hs='history'
 alias du='du -h'
 alias df='df -h'
 
