@@ -10,6 +10,7 @@ alias history='history -Di'
 alias hs='history'
 alias du='du -h'
 alias df='df -h'
+alias mybr='git br --contains'
 
 # history
 HISTSIZE=100000
