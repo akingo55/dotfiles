@@ -11,6 +11,7 @@
 	co = checkout
 	df = diff
 	br = branch
+	lg = log --oneline --color
 
 [status]
 	showUntrackedFiles = all
@@ -20,3 +21,6 @@
 
 [ghq]
 	root = ~/repo
+
+[core]
+	pager = less
