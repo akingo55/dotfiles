@@ -1,86 +1,62 @@
+set encoding=utf-8
+
 """"""""""""""""""""""""""""""
 " プラグインのセットアップ
 """"""""""""""""""""""""""""""
+" vimのランタイムパス（プラグイン等読み込むディレクトリ）
 set rtp +=~/.vim
 call plug#begin('~/.vim/plugged')
 
+" vimのステータスバー
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 let g:airline_theme = 'bubblegum'
-
-" ファイルオープンを便利に
-Plug 'Shougo/unite.vim'
-" Unite.vimで最近使ったファイルを表示できるようにする
-Plug 'Shougo/neomru.vim'
-" ファイルをtree表示してくれる
-Plug 'scrooloose/nerdtree'
-" Gitを便利に使う
-Plug 'tpope/vim-fugitive'
-
 " Rails向けのコマンドを提供する
 Plug 'tpope/vim-rails'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+nmap  gd (coc-definition)
 " Ruby向けにendを自動挿入してくれる
 Plug 'tpope/vim-endwise'
-
 " コメントON/OFFを手軽に実行
 Plug 'tomtom/tcomment_vim'
 " シングルクオートとダブルクオートの入れ替え等
 Plug 'tpope/vim-surround'
-
 " インデントに色を付けて見やすくする
 Plug 'nathanaelkane/vim-indent-guides'
 let g:indent_guides_enable_on_vim_startup = 1
-colorscheme default
-
-" ログファイルを色づけしてくれる
-Plug 'vim-scripts/AnsiEsc.vim'
 " 行末の半角スペースを可視化
 Plug 'bronson/vim-trailing-whitespace'
 " less用のsyntaxハイライト
  Plug 'KohPoll/vim-less'
-
 " CSVをカラム単位に色分けする
 Plug 'mechatroner/rainbow_csv'
+" terminalモード
+Plug 'kassio/neoterm'
 
+""""""""""""""""""""""""""""""
 " terraform
+""""""""""""""""""""""""""""""
 Plug 'hashivim/vim-terraform'
 let g:terraform_fmt_on_save = 1
 let g:terraform_align = 1
-""let g:terraform_fold_sections = 1
 Plug 'vim-syntastic/syntastic'
 Plug 'juliosueiras/vim-terraform-completion'
 
-" deoplete.nvim
-Plug 'Shougo/deoplete.nvim'
-Plug 'roxma/nvim-yarp'
-Plug 'roxma/vim-hug-neovim-rpc'
-"let g:deoplete#enable_at_startup = 1
-
-" syntax
-Plug 'sheerun/vim-polyglot'
-" markdown
-Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
-let g:mkdp_auto_start = 0
-" 入力補完
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-" JSON
-Plug 'w0rp/ale'
-" Vim起動時にALEをOFFにする設
-let g:ale_lint_on_enter = 0
-
+""""""""""""""""""""""""""""""
+" Lint
+""""""""""""""""""""""""""""""
+Plug 'dense-analysis/ale'
+let g:ale_completion_enabled = 1
+let g:ale_disable_lsp = 1
+let g:ale_lint_on_text_changed = 1
 " JSONLintをALEで使うよう指定
 let g:ale_linters = {
     \   'json': ['jsonlint'],
     \}
-call plug#end()
-
-""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""
 " 各種オプションの設定
 """"""""""""""""""""""""""""""
-" タグファイルの指定(でもタグジャンプは使ったことがない)
-"set tags=~/.tags
-" スワップファイルは使わない(ときどき面倒な警告が出るだけで役に立ったことがない)
+" swapファイル無効にする
 set noswapfile
 " カーソルが何行目の何列目に置かれているかを表示する
 set ruler
@@ -94,8 +70,6 @@ set title
 set wildmenu
 " 入力中のコマンドを表示する
 set showcmd
-" バッファで開いているファイルのディレクトリでエクスクローラを開始する(でもエクスプローラって使ってない)
-set browsedir=buffer
 " 小文字のみで検索したときに大文字小文字を無視する
 set smartcase
 " 検索結果をハイライト表示する
@@ -126,16 +100,20 @@ set tabstop=2
 set shiftwidth=2
 " 行頭の余白内で Tab を打ち込むと、'shiftwidth' の数だけインデントする
 set smarttab
-" カーソルを行頭、行末で止まらないようにする
+"カーソルを行頭、行末で止まらないようにする
 set whichwrap=b,s,h,l,<,>,[,]
 " 構文毎に文字色を変化させる
 syntax on
 " カラースキーマの指定
-" colorscheme desert
+ colorscheme cosme
 " 行番号の色
-highlight LineNr ctermfg=darkyellow
+highlight LineNr ctermfg=205
+"インサートモード中の BS、CTRL-W、CTRL-U による文字削除を柔軟にする
 set backspace=indent,eol,start
-" 行末の空白文字をハイライトする
+
+""""""""""""""""""""""""""""""
+" 行末の空白文字をハイライト
+""""""""""""""""""""""""""""""
 augroup HighlightTrailingSpaces
   autocmd!
   autocmd VimEnter,WinEnter,ColorScheme * highlight TrailingSpaces term=underline guibg=Red ctermbg=Red
@@ -144,8 +122,6 @@ augroup HighlightTrailingSpaces
   autocmd Filetype xml inoremap <buffer> </ </<C-x><C-o>
   autocmd Filetype html inoremap <buffer> </ </<C-x><C-o>
 augroup END
-
-""""""""""""""""""""""""""""""
 
 """"""""""""""""""""""""""""""
 " 全角スペースの表示
@@ -162,41 +138,6 @@ if has('syntax')
     augroup END
     call ZenkakuSpace()
 endif
-""""""""""""""""""""""""""""""
-
-""""""""""""""""""""""""""""""
-" 挿入モード時、ステータスラインの色を変更
-""""""""""""""""""""""""""""""
-let g:hi_insert = 'highlight StatusLine guifg=darkblue guibg=darkyellow gui=none ctermfg=blue ctermbg=yellow cterm=none'
-
-if has('syntax')
-  augroup InsertHook
-    autocmd!
-    autocmd InsertEnter * call s:StatusLine('Enter')
-    autocmd InsertLeave * call s:StatusLine('Leave')
-  augroup END
-endif
-
-let s:slhlcmd = ''
-function! s:StatusLine(mode)
-  if a:mode == 'Enter'
-    silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
-    silent exec g:hi_insert
-  else
-    highlight clear StatusLine
-    silent exec s:slhlcmd
-  endif
-endfunction
-
-function! s:GetHighlight(hi)
-  redir => hl
-  exec 'highlight '.a:hi
-  redir END
-  let hl = substitute(hl, '[\r\n]', '', 'g')
-  let hl = substitute(hl, 'xxx', '', '')
-  return hl
-endfunction
-""""""""""""""""""""""""""""""
 
 """"""""""""""""""""""""""""""
 " 自動的に閉じ括弧を入力
@@ -208,31 +149,15 @@ inoremap " ""<LEFT>
 inoremap ' ''<LEFT>
 """"""""""""""""""""""""""""""
 
-""""""""""""""""""""""""""""""""
-" vim-terraform-completionの設定
-""""""""""""""""""""""""""""""""
-filetype plugin indent on
-" Syntastic Config
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_check_on_wq = 0
-
-" (Optional)Remove Info(Preview) window
-set completeopt-=preview
-
-" (Optional)Hide Info(Preview) window after completions
-autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
-autocmd InsertLeave * if pumvisible() == 0|pclose|endif
-
-" (Optional) Enable terraform plan to be include in filter
-let g:syntastic_terraform_tffilter_plan = 1
-
-" (Optional) Default: 0, enable(1)/disable(0) plugin's keymapping
-let g:terraform_completion_keys = 1
-
-" (Optional) Default: 1, enable(1)/disable(0) terraform module registry completion
-let g:terraform_registry_module_completion = 0
-
+""""""""""""""""""""""""""""""
+" ファイルをtree表示してくれる
+""""""""""""""""""""""""""""""
+Plug 'preservim/nerdtree'
+" Start NERDTree. If a file is specified, move the cursor to its window.
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
+" Exit Vim if NERDTree is the only window remaining in the only tab.
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+let NERDTreeShowHidden = 1
+nnoremap <C-n> :NERDTree<CR>
+call plug#end()
