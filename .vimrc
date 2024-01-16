@@ -1,61 +1,9 @@
-set encoding=utf-8
-
-""""""""""""""""""""""""""""""
-" プラグインのセットアップ
-""""""""""""""""""""""""""""""
-" vimのランタイムパス（プラグイン等読み込むディレクトリ）
-set rtp +=~/.vim
-call plug#begin('~/.vim/plugged')
-
-" vimのステータスバー
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-let g:airline_theme = 'bubblegum'
-" Rails向けのコマンドを提供する
-Plug 'tpope/vim-rails'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-nmap  gd (coc-definition)
-" Ruby向けにendを自動挿入してくれる
-Plug 'tpope/vim-endwise'
-" コメントON/OFFを手軽に実行
-Plug 'tomtom/tcomment_vim'
-" シングルクオートとダブルクオートの入れ替え等
-Plug 'tpope/vim-surround'
-" インデントに色を付けて見やすくする
-Plug 'nathanaelkane/vim-indent-guides'
-let g:indent_guides_enable_on_vim_startup = 1
-" 行末の半角スペースを可視化
-Plug 'bronson/vim-trailing-whitespace'
-" less用のsyntaxハイライト
- Plug 'KohPoll/vim-less'
-" CSVをカラム単位に色分けする
-Plug 'mechatroner/rainbow_csv'
-" terminalモード
-Plug 'kassio/neoterm'
-
-""""""""""""""""""""""""""""""
-" terraform
-""""""""""""""""""""""""""""""
-Plug 'hashivim/vim-terraform'
-let g:terraform_fmt_on_save = 1
-let g:terraform_align = 1
-Plug 'vim-syntastic/syntastic'
-Plug 'juliosueiras/vim-terraform-completion'
-
-""""""""""""""""""""""""""""""
-" Lint
-""""""""""""""""""""""""""""""
-Plug 'dense-analysis/ale'
-let g:ale_completion_enabled = 1
-let g:ale_disable_lsp = 1
-let g:ale_lint_on_text_changed = 1
-" JSONLintをALEで使うよう指定
-let g:ale_linters = {
-    \   'json': ['jsonlint'],
-    \}
 """"""""""""""""""""""""""""""
 " 各種オプションの設定
 """"""""""""""""""""""""""""""
+set encoding=utf-8
+" vimのランタイムパス（プラグイン等読み込むディレクトリ）
+set rtp +=~/.vim
 " swapファイル無効にする
 set noswapfile
 " カーソルが何行目の何列目に置かれているかを表示する
@@ -104,12 +52,17 @@ set smarttab
 set whichwrap=b,s,h,l,<,>,[,]
 " 構文毎に文字色を変化させる
 syntax on
+" filetype検出、filetype別プラグイン、インデントのロードを有効化
+filetype plugin indent on
 " カラースキーマの指定
- colorscheme cosme
+colorscheme default
 " 行番号の色
 highlight LineNr ctermfg=205
 "インサートモード中の BS、CTRL-W、CTRL-U による文字削除を柔軟にする
 set backspace=indent,eol,start
+"ctags対応
+set fileformats=unix,dos,mac
+set fileencodings=utf-8,sjis
 
 """"""""""""""""""""""""""""""
 " 行末の空白文字をハイライト
@@ -140,24 +93,107 @@ if has('syntax')
 endif
 
 """"""""""""""""""""""""""""""
-" 自動的に閉じ括弧を入力
+" insertモード
 """"""""""""""""""""""""""""""
+" 自動的に閉じ括弧を入力
 inoremap { {}<LEFT>
 inoremap [ []<LEFT>
 inoremap ( ()<LEFT>
 inoremap " ""<LEFT>
 inoremap ' ''<LEFT>
-""""""""""""""""""""""""""""""
+
+" タブ補完を有効にする"
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
 
 """"""""""""""""""""""""""""""
-" ファイルをtree表示してくれる
+" nomalモード
 """"""""""""""""""""""""""""""
+" tree表示を閉じる
+nnoremap <C-t> :NERDTreeToggle<CR>
+" 表示しているファイルの場所に移動する
+nnoremap <C-f> :NERDTreeFind<CR>
+
+" タブ移動
+nmap <C-b> <Plug>AirlineSelectPrevTab
+nmap <C-n> <Plug>AirlineSelectNextTab
+
+" GoTo code navigation
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gr <Plug>(coc-references)
+
+""""""""""""""""""""""""""""""
+" プラグインのセットアップ
+""""""""""""""""""""""""""""""
+call plug#begin('~/.vim/plugged')
+
+" vimのステータスバー
+Plug 'vim-airline/vim-airline'
+" enable tabline
+let g:airline#extensions#tabline#enabled = 1
+" enable tabline number
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+Plug 'vim-airline/vim-airline-themes'
+let g:airline_theme = 'bubblegum'
+
+" Rails向けのコマンドを提供する
+Plug 'tpope/vim-rails'
+Plug 'neoclide/coc.nvim', {'branch': 'develop'}
+" Ruby向けにendを自動挿入してくれる
+Plug 'tpope/vim-endwise'
+" コメントON/OFFを手軽に実行(gcc)
+Plug 'tomtom/tcomment_vim'
+" シングルクオートとダブルクオートの入れ替え等(cs)
+Plug 'tpope/vim-surround'
+" インデントに色を付けて見やすくする
+Plug 'nathanaelkane/vim-indent-guides'
+let g:indent_guides_enable_on_vim_startup = 1
+" 行末の半角スペースを可視化
+Plug 'bronson/vim-trailing-whitespace'
+" CSVをカラム単位に色分けする
+Plug 'mechatroner/rainbow_csv'
+
+"" terraform
+Plug 'hashivim/vim-terraform'
+" terraform fmtを自動で実行
+let g:terraform_fmt_on_save = 1
+" settingsを自動で整列させる
+let g:terraform_align = 1
+Plug 'juliosueiras/vim-terraform-completion'
+
+"" Lint
+Plug 'dense-analysis/ale'
+let g:ale_completion_enabled = 1
+let g:ale_disable_lsp = 1
+let g:ale_lint_on_text_changed = 1
+" JSONLintをALEで使うよう指定
+let g:ale_linters = {
+    \   'json': ['jsonlint'],
+    \}
+
+" ファイルをtree表示してくれる
 Plug 'preservim/nerdtree'
 " Start NERDTree. If a file is specified, move the cursor to its window.
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
+
 " Exit Vim if NERDTree is the only window remaining in the only tab.
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
+" 隠しファイルを表示する
 let NERDTreeShowHidden = 1
-nnoremap <C-n> :NERDTree<CR>
+
 call plug#end()
