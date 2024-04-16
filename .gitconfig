@@ -1,6 +1,11 @@
 [user]
+	email = xxx
 	name = akingo55
-	email = xxxx
+
+[pager]
+    log = diff-highlight | less
+    show = diff-highlight | less
+    diff = diff-highlight | less
 
 [alias]
 	st = status
@@ -9,18 +14,17 @@
 	gr = graph
 	aa = add --all
 	co = checkout
-	df = diff
-	br = branch
-	lg = log --oneline --color
+  df = diff
+  sw = switch
+  rs = restore
 
 [status]
 	showUntrackedFiles = all
 
 [push]
-	default = simple
+  default = simple
 
 [ghq]
 	root = ~/repo
-
-[core]
-	pager = less
+[url "ssh://git@github.com"]
+	insteadOf = https://github.com
