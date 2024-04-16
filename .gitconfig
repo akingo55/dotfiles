@@ -1,30 +1,31 @@
 [user]
-	email = xxx
-	name = akingo55
+  email = xxx
+  name = akingo55
 
 [pager]
-    log = diff-highlight | less
-    show = diff-highlight | less
-    diff = diff-highlight | less
+  log = diff-highlight | less
+  show = diff-highlight | less
+  diff = diff-highlight | less
 
 [alias]
-	st = status
-	cm = commit -m
-	graph = log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'
-	gr = graph
-	aa = add --all
-	co = checkout
+  st = status
+  cm = commit -m
+  graph = log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'
+  gr = graph
+  aa = add --all
+  co = checkout
   df = diff
   sw = switch
   rs = restore
 
 [status]
-	showUntrackedFiles = all
+  showUntrackedFiles = all
 
 [push]
   default = simple
 
 [ghq]
-	root = ~/repo
+  root = ~/repo
+
 [url "ssh://git@github.com"]
-	insteadOf = https://github.com
+  insteadOf = https://github.com
