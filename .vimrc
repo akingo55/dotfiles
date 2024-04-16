@@ -63,6 +63,8 @@ set backspace=indent,eol,start
 "ctags対応
 set fileformats=unix,dos,mac
 set fileencodings=utf-8,sjis
+" fzfをvimで使う
+set rtp+=/opt/homebrew/opt/fzf
 
 """"""""""""""""""""""""""""""
 " 行末の空白文字をハイライト
@@ -103,12 +105,6 @@ inoremap " ""<LEFT>
 inoremap ' ''<LEFT>
 
 " タブ補完を有効にする"
-inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
-
 " Make <CR> to accept selected completion item or notify coc.nvim to format
 " <C-g>u breaks current undo, please make your own choice
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
@@ -176,7 +172,6 @@ Plug 'juliosueiras/vim-terraform-completion'
 
 "" Lint
 Plug 'dense-analysis/ale'
-let g:ale_completion_enabled = 1
 let g:ale_disable_lsp = 1
 let g:ale_lint_on_text_changed = 1
 " JSONLintをALEで使うよう指定

@@ -11,12 +11,6 @@ cp .zshrc ~/.zshrc
 
 MAIN_SHELL=".zshrc"
 
-# vim
-brew install go
-echo 'export GOPATH=$HOME' >> ~/${MAIN_SHELL}
-echo 'export PATH=$PATH:$GOPATH/bin' >> ~/${MAIN_SHELL}
-
-source ~/${MAIN_SHELL}
 
 brew install ghq peco
 cat peco.conf >> ~/.zshrc
