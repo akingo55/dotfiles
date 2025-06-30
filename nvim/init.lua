@@ -78,7 +78,7 @@ vim.keymap.set("n", "<C-b>", "<cmd>bnprev<CR>")
 
 -- fzf-lua key mappings
 vim.keymap.set('n', '<leader>f', "<cmd>lua require('fzf-lua').files()<CR>")
-vim.keymap.set('n', '<leader>g', "<cmd>lua require('fzf-lua').grep()<CR>")
+vim.keymap.set('n', '<leader>g', "<cmd>lua require('fzf-lua').grep({search_dirs = { vim.fn.expand('%:p:h') }})<CR>")
 vim.keymap.set('n', '<leader>j', "<cmd>lua require('fzf-lua').lsp_definitions()<CR>")
 
 -- lazy.nvim 初期化
@@ -88,12 +88,42 @@ vim.opt.rtp:prepend(lazypath)
 -- Plugin management using lazy.nvim
 require("lazy").setup({
   {
+    'nvimdev/dashboard-nvim',
+    event = 'VimEnter',
+    config = function()
+      require('dashboard').setup {
+        -- config
+      }
+    end,
+    dependencies = { {'nvim-tree/nvim-web-devicons'}}
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup({
+        options = {
+    theme = 'gruvbox',
+   }
+      })
+    end
+  },
+  {
+    "greggh/claude-code.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    config = function()
+      require("claude-code").setup()
+    end
+  },
+  {
     'akinsho/toggleterm.nvim',
     version = "*",
     config = function()
       require("toggleterm").setup({
         size = 20,
-        open_mapping = [[<C-t>]],
+        open_mapping = [[<C-\>]],
         hide_numbers = true, -- hide the number column in toggleterm buffers
         shade_filetypes = {},
         shade_terminals = true,
@@ -155,7 +185,6 @@ require("lazy").setup({
       })
       --terraform-lsp の設定
       lspconfig.terraformls.setup({
-        cmd = { 'terraform-lsp' },
         filetypes = { "terraform", "tfvars" },
         single_file_support = true,
         capabilities = capabilities,
