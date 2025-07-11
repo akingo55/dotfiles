@@ -272,6 +272,48 @@ require("lazy").setup({
   {
     "github/copilot.vim",
     lazy=false,
+    event = "InsertEnter",
+    config = function()
+      -- Copilot の設定
+      vim.g.copilot_no_tab_map = true -- Tab キーのマッピングを無効化
+      vim.api.nvim_set_keymap("i", "<C-j>", 'copilot#Accept("<CR>")', {
+        expr = true,
+        noremap = true,
+        silent = true,
+      })
+    end,
+  },
+  -- neotest
+  {
+    "nvim-neotest/neotest",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "nvim-lua/plenary.nvim",
+      "antoinemadec/FixCursorHold.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "olimorris/neotest-rspec"
+    },
+    config = function()
+      require("neotest").setup({
+        output  = {
+          open_on_run = true, -- テスト実行時に出力を開く
+        },
+        adapters = {
+          require("neotest-rspec")( {
+            rspec_cmd = function()
+              return { "bundle", "exec", "rspec" }
+            end,
+          }),
+        },
+      })
+      -- キーマップの設定
+      vim.keymap.set("n", "<leader>tt", function()
+        require("neotest").run.run()
+      end, { noremap = true, silent = true, desc = "Run nearest test" })
+      vim.keymap.set("n", "<leader>to", function()
+        require("neotest").output.open({ enter = true })
+      end, { desc = "Open test output" })
+    end
   }
 })
 
