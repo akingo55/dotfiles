@@ -1,9 +1,5 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
+eval "$(mise activate zsh)"
 
-# x86
-export LDFLAGS="-L/usr/local/opt/zlib/lib"
-export CPPFLAGS="-I/usr/local/opt/zlib/include"
 export LANG=ja_JP.UTF-8
 
 # github repositoryの移動をしやすくする
@@ -60,13 +56,13 @@ bindkey '^[' peco-cdr
 alias ll='ls -l'
 alias la='ls -a'
 alias lt='ls -lt'
-#alias history='history -Di'
 alias hs='history'
 alias du='du -h'
 alias df='df -h'
 alias mybr='git rev-parse --abbrev-ref @'
 alias g-ph='git push origin `mybr`'
 alias g=git
+alias vim=nvim
 
 # history
 HISTSIZE=100000
@@ -82,8 +78,8 @@ setopt list_packed # 補完候補を詰めて表示
 autoload -Uz compinit && compinit # コマンド補完
 
 # cdしたらls
-function cd(){
-    builtin cd $@ && ls;
+function cd() {
+    builtin cd "$@" && ls
 }
 
 # zsh-completions(補完機能)の設定
@@ -96,53 +92,9 @@ if type brew &>/dev/null; then
   compinit
 fi
 
-# ruby
-eval "$(rbenv init - zsh)"
-export PATH="$HOME/.rbenv/bin:$PATH"
-
-# python
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/shims:$PATH"
-eval "$(pyenv init -)"
-
-# node
-eval "$(nodenv init -)"
-
-# direnv
-eval "$(direnv hook zsh)"
-
-# ansible error対応
-export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-
 # introduce pure
 # https://github.com/sindresorhus/pure
+# .zshrc
 autoload -U promptinit; promptinit
-# change the path color
-zstyle :prompt:pure:path color cyan
-# change the color for both `prompt:success` and `prompt:error`
-zstyle ':prompt:pure:prompt:*' color magenta
-# turn on git stash status
-zstyle :prompt:pure:git:stash show yes
 prompt pure
-
-# terraform
-export TF_CLI_ARGS_plan="--parallelism=80"
-export TF_CLI_ARGS_apply="--parallelism=80"
-export GODEBUG=asyncpreemptoff=1
-
-export PATH="$PATH:/opt/homebrew/share/git-core/contrib/diff-highlight"
-
-# ffi error
-export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
-export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
-
-# ssl
-#export PATH="/usr/local/opt/openssl/bin:$PATH"
-export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
-#export PATH="/opt/homebrew/opt/openssl@1.1/bin:$PATH"
-#export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib"
-#export CPPFLAGS="-I/opt/homebrew/opt/openssl@1.1/include"
-
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
-export PATH="/usr/local/opt/openjdk/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"

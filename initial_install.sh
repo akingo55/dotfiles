@@ -20,14 +20,33 @@ brew install font-hack-nerd-font
 # neovim
 brew install neovim
 
-# python
-brew install pyenv
-
 # aws
 brew install awscli aws-vault
 
 # terraform
 brew install tfenv
 
-# rbenv
-brew install rbenv
+# fzf
+brew install fzf
+
+# mise (Python / Ruby / Node.js version management)
+brew install mise
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+eval "$(mise activate zsh)"
+mise use --global node@latest
+mise use --global python@latest
+mise use --global ruby@latest
+
+# npm global packages (LSP servers / linters)
+npm install -g typescript typescript-language-server
+npm install -g yaml-language-server
+npm install -g jsonlint htmlhint eslint
+
+# Terraform LSP + linter
+brew install terraform-ls tflint
+
+# Lua LSP (for ALE)
+brew install lua-language-server
+
+# Ruby gems
+gem install ruby-lsp rubocop
