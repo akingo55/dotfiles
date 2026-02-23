@@ -11,6 +11,7 @@ opt.laststatus = 2
 opt.title = true
 opt.wildmenu = true
 opt.showcmd = true
+opt.ignorecase = true
 opt.smartcase = true
 opt.hlsearch = true
 opt.background = "dark"
@@ -37,13 +38,7 @@ vim.cmd([[filetype plugin indent on]])
 -- Set runtime path
 vim.opt.rtp:append("/opt/homebrew/opt/fzf")
 
--- Highlight line number
-vim.cmd([[highlight LineNr ctermfg=205]])
-
 vim.opt.clipboard:append({ "unnamedplus" }) -- Use system clipboard
-
-local autocmd = vim.api.nvim_create_autocmd
-local augroup = vim.api.nvim_create_augroup
 
 
 -- HTML autocomplete
@@ -54,11 +49,12 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Show zenkaku space
+-- Show zenkaku space / highlight line number
 vim.api.nvim_create_autocmd({"ColorScheme", "VimEnter", "WinEnter", "BufRead"}, {
   callback = function()
     vim.cmd([[highlight ZenkakuSpace cterm=underline ctermfg=lightblue guibg=darkgray]])
     vim.fn.matchadd("ZenkakuSpace", "　")
+    vim.api.nvim_set_hl(0, "LineNr", { ctermfg = 205 })
   end,
 })
 
@@ -74,7 +70,7 @@ vim.keymap.set("i", "'", "''<Left>")
 
 -- buffer navigation
 vim.keymap.set("n", "<C-n>", "<cmd>bnext<CR>")
-vim.keymap.set("n", "<C-b>", "<cmd>bnprev<CR>")
+vim.keymap.set("n", "<C-b>", "<cmd>bprevious<CR>")
 
 -- fzf-lua key mappings
 vim.keymap.set('n', '<leader>f', "<cmd>lua require('fzf-lua').files()<CR>")
@@ -83,6 +79,19 @@ vim.keymap.set('n', '<leader>j', "<cmd>lua require('fzf-lua').lsp_definitions()<
 
 -- lazy.nvim 初期化
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
 vim.opt.rtp:prepend(lazypath)
 
 -- Plugin management using lazy.nvim
@@ -142,14 +151,12 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = { "ruby", "lua", "html", "javascript", "json", "css" },
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
+      require("nvim-treesitter").setup({
+        ensure_installed = { "ruby", "lua", "html", "javascript", "typescript", "json", "css", "yaml", "bash", "dockerfile" },
+        highlight = { enable = true },
       })
     end
   },
@@ -168,34 +175,79 @@ require("lazy").setup({
     "neovim/nvim-lspconfig",
     dependencies = { "hrsh7th/nvim-cmp", "hrsh7th/cmp-nvim-lsp" },
     config = function()
-      local lspconfig = require("lspconfig")
-      local cmp_nvim_lsp = require("cmp_nvim_lsp")
-      -- cmp と連携するための capabilities を取得
-      local capabilities = cmp_nvim_lsp.default_capabilities()
+      -- 1. 補完のための共通設定を定義
+      local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      lspconfig.ruby_lsp.setup({
-        cmd = { 'ruby-lsp' },
+      -- 2. vim.lsp.config で設定をカスタマイズ (従来の .setup{} に相当)
+      -- Ruby
+      vim.lsp.config('ruby_lsp', {
+        cmd = { "ruby-lsp" },
         filetypes = { "ruby" },
-        root_dir = lspconfig.util.root_pattern("Gemfile", ".git"),
+        root_markers = { "Gemfile", ".git" },
+        capabilities = capabilities,
         init_options = {
           formatting = "auto",
         },
-        single_file_support = true,
-        capabilities = capabilities,
       })
-      --terraform-lsp の設定
-      lspconfig.terraformls.setup({
+
+      -- Terraform
+      vim.lsp.config('terraformls', {
         filetypes = { "terraform", "tfvars" },
-        single_file_support = true,
         capabilities = capabilities,
       })
+
+      -- YAML
+      vim.lsp.config('yamlls', {
+        filetypes = { "yaml" },
+        root_markers = { ".git" },
+        capabilities = capabilities,
+        settings = {
+          yaml = {
+            schemas = {
+              ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+              kubernetes = "/*.yaml",
+            },
+          },
+        },
+      })
+
+      -- TypeScript / JavaScript
+      vim.lsp.config('ts_ls', {
+        filetypes = { "typescript", "javascript", "typescriptreact", "javascriptreact" },
+        root_markers = { "tsconfig.json", "package.json", ".git" },
+        capabilities = capabilities,
+      })
+
+      -- 3. vim.lsp.enable でサーバーを有効化 (これが起動のスイッチ)
+      vim.lsp.enable('ruby_lsp')
+      vim.lsp.enable('terraformls')
+      vim.lsp.enable('ts_ls')
+      vim.lsp.enable('yamlls')
     end
   },
   -- neovim用補完
-  { 'hrsh7th/nvim-cmp' },
-  { 'hrsh7th/cmp-nvim-lsp' },
-  { "hrsh7th/cmp-buffer" },
-  { "hrsh7th/cmp-path" },
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+    },
+    config = function()
+      local cmp = require("cmp")
+      cmp.setup({
+        mapping = cmp.mapping.preset.insert({
+          ["<C-Space>"] = cmp.mapping.complete(),
+          ["<CR>"] = cmp.mapping.confirm({ select = true }),
+        }),
+        sources = {
+          { name = "nvim_lsp" },
+          { name = "buffer" },
+          { name = "path" },
+        },
+      })
+    end,
+  },
   { "tpope/vim-endwise" },
   { "tomtom/tcomment_vim" },
   { "tpope/vim-surround" },
@@ -224,9 +276,44 @@ require("lazy").setup({
             slim = { 'slim-lint' },
             lua = {'lua_language_server'},
             json = { 'jsonlint' },
-            html = { 'htmlhint' }
+            html = { 'htmlhint' },
+            terraform = { 'tflint' },
+            typescript = { 'eslint' },
+            javascript = { 'eslint' },
         }
     end
+  },
+  -- diagnostics
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    keys = {
+      { "<leader>d", "<cmd>Trouble diagnostics toggle<CR>", desc = "Diagnostics" },
+      { "<leader>ds", "<cmd>Trouble symbols toggle<CR>", desc = "Symbols" },
+    },
+    opts = {},
+  },
+  -- git
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("gitsigns").setup({
+        current_line_blame = true,
+        current_line_blame_opts = {
+          delay = 500,
+        },
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          local map = function(mode, l, r, desc)
+            vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
+          end
+          map("n", "]c", gs.next_hunk, "Next hunk")
+          map("n", "[c", gs.prev_hunk, "Prev hunk")
+          map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
+          map("n", "<leader>hb", gs.blame_line, "Blame line")
+        end,
+      })
+    end,
   },
   -- colorscheme
   {
@@ -257,7 +344,7 @@ require("lazy").setup({
             group_empty = true, -- 空のディレクトリをグループ化
           },
         filters = {
-          dotfiles = true,  -- ドットファイルを表示
+          dotfiles = false,  -- ドットファイルを表示
         }
       })
 
@@ -271,8 +358,7 @@ require("lazy").setup({
   -- copilot
   {
     "github/copilot.vim",
-    lazy=false,
-    event = "InsertEnter",
+    lazy = false,
     config = function()
       -- Copilot の設定
       vim.g.copilot_no_tab_map = true -- Tab キーのマッピングを無効化
@@ -282,54 +368,8 @@ require("lazy").setup({
         silent = true,
       })
     end,
-  },
-  -- neotest
-  {
-    "nvim-neotest/neotest",
-    dependencies = {
-      "nvim-neotest/nvim-nio",
-      "nvim-lua/plenary.nvim",
-      "antoinemadec/FixCursorHold.nvim",
-      "nvim-treesitter/nvim-treesitter",
-      "olimorris/neotest-rspec"
-    },
-    config = function()
-      require("neotest").setup({
-        output  = {
-          open_on_run = true, -- テスト実行時に出力を開く
-        },
-        adapters = {
-          require("neotest-rspec")( {
-            rspec_cmd = function()
-              return { "bundle", "exec", "rspec" }
-            end,
-          }),
-        },
-      })
-      -- キーマップの設定
-      vim.keymap.set("n", "<leader>tt", function()
-        require("neotest").run.run()
-      end, { noremap = true, silent = true, desc = "Run nearest test" })
-      vim.keymap.set("n", "<leader>to", function()
-        require("neotest").output.open({ enter = true })
-      end, { desc = "Open test output" })
-    end
   }
 })
-
--- cmp 設定
-local cmp = require("cmp")
-cmp.setup({
-  mapping = cmp.mapping.preset.insert({
-    ["<C-Space>"] = cmp.mapping.complete(),
-    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-  }),
-  sources = {
-    { name = "nvim_lsp" },
-    { name = "buffer" },
-  },
-})
-
 -- nvim-tree 自動起動
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
