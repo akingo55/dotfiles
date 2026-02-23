@@ -107,8 +107,8 @@ inoremap ' ''<LEFT>
 " タブ補完を有効にする"
 " Make <CR> to accept selected completion item or notify coc.nvim to format
 " <C-g>u breaks current undo, please make your own choice
-inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+""inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+""                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 function! CheckBackspace() abort
   let col = col('.') - 1
@@ -128,13 +128,13 @@ nmap <C-b> <Plug>AirlineSelectPrevTab
 nmap <C-n> <Plug>AirlineSelectNextTab
 
 " GoTo code navigation
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gr <Plug>(coc-references)
+""nmap <silent> gd <Plug>(coc-definition)
+""nmap <silent> gr <Plug>(coc-references)
 
 """"""""""""""""""""""""""""""
 " プラグインのセットアップ
 """"""""""""""""""""""""""""""
-call plug#begin('~/.vim/plugged')
+call plug#begin()
 
 " vimのステータスバー
 Plug 'vim-airline/vim-airline'
@@ -147,7 +147,7 @@ let g:airline_theme = 'bubblegum'
 
 " Rails向けのコマンドを提供する
 Plug 'tpope/vim-rails'
-Plug 'neoclide/coc.nvim', {'branch': 'develop'}
+""Plug 'neoclide/coc.nvim', {'branch': 'develop'}
 " Ruby向けにendを自動挿入してくれる
 Plug 'tpope/vim-endwise'
 " コメントON/OFFを手軽に実行(gcc)
