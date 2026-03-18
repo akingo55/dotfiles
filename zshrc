@@ -1,10 +1,17 @@
-eval "$(mise activate zsh)"
-
 export LANG=ja_JP.UTF-8
 
+# fzf
+# Open in tmux popup if on tmux, otherwise use --height mode
+export FZF_DEFAULT_OPTS='--height 40% --tmux bottom,40% --layout reverse --border top'
+
+# zsh-completionsの設定
+FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+autoload -U compinit
+compinit -u
+
 # github repositoryの移動をしやすくする
-function peco-github-dir () {
-  local selected_dir=$(ghq list -p | peco --query "$LBUFFER")
+function fzf-github-dir () {
+  local selected_dir=$(ghq list -p | fzf --query "$LBUFFER")
   if [ -n "$selected_dir" ]; then
     BUFFER="cd ${selected_dir}"
     zle accept-line
@@ -12,12 +19,12 @@ function peco-github-dir () {
   zle clear-screen
 }
 
-zle -N peco-github-dir
-bindkey '^]' peco-github-dir
+zle -N fzf-github-dir
+bindkey '^]' fzf-github-dir
 
 # historyからコマンド選択できるようにする
-function peco-history () {
-  local history_command=$(history -nr 1 | peco --query "$LBUFFER")
+function fzf-history () {
+  local history_command=$(history -nr 1 | fzf --query "$LBUFFER")
   if [ -n "$history_command" ]; then
     BUFFER=$history_command
     zle accept-line
@@ -25,8 +32,8 @@ function peco-history () {
   zle clear-screen
 }
 
-zle -N peco-history
-bindkey '^h' peco-history
+zle -N fzf-history
+bindkey '^h' fzf-history
 
 # cdrを有効にする
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
@@ -39,9 +46,9 @@ zstyle ':chpwd:*' recent-dirs-default true
 zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/shell/chpwd-recent-dirs"
 zstyle ':chpwd:*' recent-dirs-pushd true
 
-# pecoでcdr選択できるようにする
-function peco-cdr () {
-  local selected_dir=$(cdr -l | awk '{ print $2 }' | peco)
+# fzfでcdr選択できるようにする
+function fzf-cdr () {
+  local selected_dir=$(cdr -l | awk '{ print $2 }' | fzf)
   if [ -n "$selected_dir" ]; then
     BUFFER=$selected_dir
     zle accept-line
@@ -49,8 +56,8 @@ function peco-cdr () {
   zle clear-screen
 }
 
-zle -N peco-cdr
-bindkey '^[' peco-cdr
+zle -N fzf-cdr
+bindkey '^[' fzf-cdr
 
 # alias
 alias ll='ls -l'
@@ -82,19 +89,13 @@ function cd() {
     builtin cd "$@" && ls
 }
 
-# zsh-completions(補完機能)の設定
-if type brew &>/dev/null; then
-  FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-  # autosuggestions
-  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-  autoload -Uz compinit
-  compinit
-fi
-
 # introduce pure
 # https://github.com/sindresorhus/pure
+
 # .zshrc
 autoload -U promptinit; promptinit
 prompt pure
 export PATH="$HOME/.local/bin:$PATH"
+
+# activate mise
+eval "$(mise activate zsh)"
