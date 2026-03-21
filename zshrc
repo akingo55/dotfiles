@@ -4,10 +4,27 @@ export LANG=ja_JP.UTF-8
 # Open in tmux popup if on tmux, otherwise use --height mode
 export FZF_DEFAULT_OPTS='--height 40% --tmux bottom,40% --layout reverse --border top'
 
-# zsh-completionsの設定
-FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-autoload -U compinit
+# zsh-completions, zsh-abbr
+if type brew >/dev/null 2>&1; then
+  fpath=(
+    "$(brew --prefix)/share/zsh-abbr"
+    "$(brew --prefix)/share/zsh-completions"
+    $fpath
+  )
+
+  # zsh-abbr
+  source /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh
+fi
+
+autoload -Uz compinit
 compinit -u
+
+# zsh-abbr reminders
+ABBR_GET_AVAILABLE_ABBREVIATION=1
+ABBR_LOG_AVAILABLE_ABBREVIATION=1
+ABBR_LOG_AVAILABLE_ABBREVIATION_AFTER=1
+# zsh-autosuggestions-abbreviations-strategy
+ZSH_AUTOSUGGEST_STRATEGY=( abbreviations $ZSH_AUTOSUGGEST_STRATEGY )
 
 # github repositoryの移動をしやすくする
 function fzf-github-dir () {
@@ -82,7 +99,7 @@ setopt hist_no_store # historyコマンドは履歴に入れない
 setopt hist_reduce_blanks # 余分な余白を削除
 setopt correct # typoを教えてくれる
 setopt list_packed # 補完候補を詰めて表示
-autoload -Uz compinit && compinit # コマンド補完
+#autoload -Uz compinit && compinit # コマンド補完
 
 # cdしたらls
 function cd() {
@@ -91,7 +108,6 @@ function cd() {
 
 # introduce pure
 # https://github.com/sindresorhus/pure
-
 # .zshrc
 autoload -U promptinit; promptinit
 prompt pure
@@ -99,3 +115,6 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # activate mise
 eval "$(mise activate zsh)"
+
+# zsh-autosuggestions-abbreviations-strategy
+source /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh
