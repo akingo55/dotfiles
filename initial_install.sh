@@ -1,57 +1,97 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-echo "start initial settings..."
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew update
+set -euo pipefail
 
-# zsh abbr, completion
-# https://zsh-abbr.olets.dev/installation.html
-brew install olets/tap/zsh-abbr
+NODE_VERSION="${NODE_VERSION:-25.7.0}"
+PYTHON_VERSION="${PYTHON_VERSION:-3.12}"
+RUBY_VERSION="${RUBY_VERSION:-3.3}"
 
-# https://github.com/olets/zsh-autosuggestions-abbreviations-strategy
-brew install olets/tap/zsh-autosuggestions-abbreviations-strategy
+BREW_FORMULAE=(
+  ghq
+  peco
+  fzf
+  neovim
+  awscli
+  aws-vault
+  tfenv
+  mise
+  terraform-ls
+  tflint
+  actionlint
+  lua-language-server
+  zsh-autosuggestions
+  olets/tap/zsh-abbr
+  olets/tap/zsh-autosuggestions-abbreviations-strategy
+)
 
-# https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md
-brew install zsh-autosuggestions
+BREW_CASKS=(
+  font-hack-nerd-font
+)
 
-# tools
-brew install ghq peco fzf
-#cat peco.conf >> ~/.zshrc
+log() {
+  printf '\n[%s] %s\n' "$(date '+%H:%M:%S')" "$*"
+}
 
-# tree icon
-# https://github.com/ryanoasis/nerd-fonts
-brew install font-hack-nerd-font
+ensure_homebrew() {
+  if ! command -v brew >/dev/null 2>&1; then
+    log "installing Homebrew"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
 
-#curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-#    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  else
+    echo "brew not found after installation" >&2
+    exit 1
+  fi
+}
 
-# neovim
-brew install neovim
+install_brew_packages() {
+  log "updating Homebrew"
+  brew update
 
-# aws
-brew install awscli aws-vault
+  log "installing Homebrew formulae"
+  brew install "${BREW_FORMULAE[@]}"
 
-# terraform
-brew install tfenv
+  log "installing Homebrew casks"
+  brew install --cask "${BREW_CASKS[@]}"
+}
 
-# mise (Python / Ruby / Node.js version management)
-brew install mise
-echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
-eval "$(mise activate zsh)"
-mise use --global node@latest
-mise use --global python@latest
-mise use --global ruby@latest
+setup_mise() {
+  log "activating mise for bash"
+  eval "$(mise activate bash)"
 
-# npm global packages (LSP servers / linters)
-npm install -g typescript typescript-language-server
-npm install -g yaml-language-server
-npm install -g jsonlint htmlhint eslint
+  log "installing global runtimes"
+  mise use --global "node@${NODE_VERSION}"
+  mise use --global "python@${PYTHON_VERSION}"
+  mise use --global "ruby@${RUBY_VERSION}"
+  hash -r
+}
 
-# Terraform LSP + linter
-brew install terraform-ls tflint
+install_global_packages() {
+  log "installing npm packages"
+  npm install -g \
+    typescript \
+    typescript-language-server \
+    yaml-language-server \
+    jsonlint \
+    htmlhint \
+    eslint
 
-# Lua LSP (for ALE)
-brew install lua-language-server
+  log "installing Ruby gems"
+  gem install ruby-lsp rubocop
+}
 
-# Ruby gems
-gem install ruby-lsp rubocop
+main() {
+  log "start initial settings"
+  ensure_homebrew
+  install_brew_packages
+  # Persistent zsh activation is managed in dotfiles zshrc.
+  setup_mise
+  install_global_packages
+  log "initial settings completed"
+}
+
+main "$@"
