@@ -1,0 +1,31 @@
+{
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Read(~/.zshrc)",
+      "Read(~/.claude/**)",
+      "Read(./repo/**)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.ssh/**)",`
+      "Read(./secrets/**)"
+    ]
+  },`
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
