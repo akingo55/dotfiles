@@ -4,11 +4,19 @@ echo "start initial settings..."
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew update
 
-MAIN_SHELL=".zshrc"
+# zsh abbr, completion
+# https://zsh-abbr.olets.dev/installation.html
+brew install olets/tap/zsh-abbr
 
-# peco
-brew install ghq peco
-cat peco.conf >> ~/.zshrc
+# https://github.com/olets/zsh-autosuggestions-abbreviations-strategy
+brew install olets/tap/zsh-autosuggestions-abbreviations-strategy
+
+# https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md
+brew install zsh-autosuggestions
+
+# tools
+brew install ghq peco fzf
+#cat peco.conf >> ~/.zshrc
 
 # tree icon
 # https://github.com/ryanoasis/nerd-fonts
@@ -25,9 +33,6 @@ brew install awscli aws-vault
 
 # terraform
 brew install tfenv
-
-# fzf
-brew install fzf
 
 # mise (Python / Ruby / Node.js version management)
 brew install mise
