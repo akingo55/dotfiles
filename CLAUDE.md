@@ -1,35 +1,71 @@
 # CLAUDE.md
 
-このリポジトリ（dotfiles）固有のClaude Code作業ガイダンスです。
+このリポジトリは、シェル・CLI・エディタ設定などの dotfiles を管理し、`rcm` でホームディレクトリへ反映するためのものです。
+Claude Code はこの repo を変更するとき、既存環境を壊さず、再実行可能で、ホスト差分に強い変更を優先します。
 
-## nvim プラグイン設定の変更ルール
+## Repository Layout
 
-### 変更前の必須確認
+- `zshrc`, `gitconfig`, `vimrc` など: ホームディレクトリへリンクされるトップレベル dotfiles
+- `config/`: XDG 配下へ反映する設定
+- `nvim/`: Neovim 設定
+- `initial_install.sh`: 初期セットアップ用の依存インストールスクリプト
+- `rcrc`: `rcm` の反映ルール
 
-1. **インストール済みバージョンを確認してからAPIを提案する**
-   - `~/.config/nvim/lazy-lock.json` で commit hash を確認する
-   - インストール先 `~/.local/share/nvim/lazy/<plugin>/` でモジュールファイルの存在を直接確認する
-   - 例：`nvim-treesitter.configs` モジュールを使う前に `configs.lua` が存在するか確認する
+## Setup Flow
 
-2. **動いているコードを尊重する**
-   - 現在エラーなく動作しているコードは「一般知識上の誤り」だけを理由に変更しない
-   - 変更するのは実際に害（エラー・誤動作・パフォーマンス問題）がある場合のみ
-   - 動作している事実は一般知識より優先される証拠とみなす
+```bash
+brew install rcm
+lsrc
+env RCRC=$(pwd)/rcrc rcup
+bash initial_install.sh
+```
 
-### 過去の失敗事例
+- `rcup` は dotfiles のリンク反映を行う
+- `initial_install.sh` は Homebrew、runtime、CLI などの依存を導入する
+- 設定変更と依存導入は別責務として扱う
 
-- `require("nvim-treesitter").setup()` を「誤った関数名」と判断し `require("nvim-treesitter.configs").setup()` に変更 → インストール済みバージョンに `configs` モジュールが存在せずエラー
-- 原因：バージョン確認をせず、一般知識を動作している事実より優先した
+## Change Principles
 
-## git コミットのルール
+1. 既存の動作を壊さない
+- 現在動いている設定は、実害が確認できない限り書き換えない
+- 一般知識より、ローカルで動作している事実を優先する
 
-### コミット前の必須確認
+2. 読み込み元と配置先を確認する
+- 変更前に、そのファイルがどこへリンクされ、どのプロセスから読まれるかを確認する
+- repo 内のファイルだけでなく、実配置先や生成物の有無も必要に応じて確認する
 
-1. **`git add` の前に必ず `git status` で対象ファイルを確認する**
-   - 意図しないファイルがステージングに含まれていないかチェックする
-   - `git add <ファイル名>` で個別指定した場合でも、既にステージング済みのファイルが混入する場合がある
+3. シェル差分を意識する
+- `bash` と `zsh` の構文や初期化方法を混同しない
+- login shell / interactive shell の差で壊れないようにする
 
-### 過去の失敗事例
+4. Bootstrap は再実行可能に保つ
+- `initial_install.sh` は idempotent を意識する
+- 同じ処理を複数回実行しても設定が重複しないようにする
+- バージョンは可能な限り固定し、結果が時間依存にならないようにする
 
-- `git add zshrc` のみ実行したつもりが、既にステージング済みだった `initial_install.sh` が同じコミットに混入
-- 原因：`git add` 前に `git status` でステージング状態を確認しなかった
+5. バージョン依存の設定は実体を確認する
+- plugin や外部ツールの API を前提に変更する場合は、インストール済みバージョンと実ファイルを確認する
+- よくある設定例をそのまま当てはめない
+
+## Validation Checklist
+
+- `git diff` で意図した差分だけか確認する
+- shell script は `bash -n` などで構文確認する
+- リンク反映に関わる変更は `lsrc` / `rcup` を前提に確認する
+- シェル設定は新しい shell を開いて確認する
+- エディタ設定は対象アプリを起動して確認する
+
+## Git Hygiene
+
+- `git add` の前に必ず `git status` を確認する
+- 既にステージ済みの変更が混ざっていないか確認する
+- ホスト固有ファイルや秘密情報をコミットしない
+- できるだけ 1 トピック 1 コミットにする
+
+## Tool-specific Notes
+
+### Neovim plugins
+
+- API 変更を前提に設定を変える前に、`~/.config/nvim/lazy-lock.json` でバージョンを確認する
+- 必要なら `~/.local/share/nvim/lazy/<plugin>/` でモジュール実体を確認する
+- 動いている設定は、実害がない限り一般論だけで置き換えない
