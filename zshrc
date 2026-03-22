@@ -102,6 +102,15 @@ autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 typeset -g __usage_log_file="$HOME/.cache/shell/command-usage-$(date '+%Y-%m').log"
 typeset -g __usage_log_last_cmd=""
 
+function usage_log_trim_command () {
+  local cmd=$1
+
+  cmd="${cmd#"${cmd%%[![:space:]]*}"}"
+  cmd="${cmd%"${cmd##*[![:space:]]}"}"
+
+  printf '%s' "$cmd"
+}
+
 function usage_log_is_safe () {
   local cmd=$1
   local lower_cmd="${cmd:l}"
@@ -117,7 +126,8 @@ function usage_log_is_safe () {
 }
 
 function usage_log_preexec () {
-  local cmd=$1
+  local cmd
+  cmd=$(usage_log_trim_command "$1")
 
   if usage_log_is_safe "$cmd"; then
     __usage_log_last_cmd="$cmd"
