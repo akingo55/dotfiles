@@ -1,13 +1,13 @@
 ---
 name: suggest-zsh-abbr
-description: `zsh-abbr` の追加候補と削除候補を shell usage log から提案する skill。`~/.cache/shell/command-usage-*.log` を集計して、繰り返し実行されるコマンドから追加候補を洗い出し、既存の `config/zsh-abbr/user-abbreviations` のうち使われていないものを削除候補として提示し、確認後のみ abbreviations ファイルを更新したいときに使う。
+description: "`zsh-abbr` の追加候補と削除候補を shell usage log から提案する skill。`~/.cache/shell/command-usage-*.log` を集計して、繰り返し実行されるコマンドから追加候補を洗い出し、既存の `config/zsh-abbr/user-abbreviations` のうち使われていないものを削除候補として提示し、確認後のみ abbreviations ファイルを更新したいときに使う。"
 disable-model-invocation: true
 allowed-tools:
-  - Bash(bash ./claude/skills/suggest-zsh-abbr/scripts/remove-old-logs.sh)
-  - Bash(bash ./claude/skills/suggest-zsh-abbr/scripts/usage-top-commands.sh)
-  - Read(~/.cache/shell/command-usage-*.log)
-  - Read(./config/zsh-abbr/user-abbreviations)
-  - Edit(./config/zsh-abbr/user-abbreviations)
+  - "Bash(bash ./claude/skills/suggest-zsh-abbr/scripts/remove-old-logs.sh)"
+  - "Bash(bash ./claude/skills/suggest-zsh-abbr/scripts/usage-top-commands.sh)"
+  - "Read(~/.cache/shell/command-usage-*.log)"
+  - "Read(./config/zsh-abbr/user-abbreviations)"
+  - "Edit(./config/zsh-abbr/user-abbreviations)"
 ---
 
 # Suggest Zsh Abbr
