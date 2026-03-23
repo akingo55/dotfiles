@@ -14,7 +14,7 @@
       "Read(./.ssh/**)",
       "Read(./secrets/**)"
     ]
-  },`
+  },
   "hooks": {
     "PreToolUse": [
       {
