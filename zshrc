@@ -22,6 +22,7 @@ zstyle ':chpwd:*' recent-dirs-pushd true
 #alias g-ph='git push origin `mybr`'
 #alias g=git
 #alias vim=nvim
+alias upclaude='curl -fsSL https://claude.ai/install.sh | bash -s stable'
 
 # history
 HISTSIZE=100000
