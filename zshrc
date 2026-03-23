@@ -28,6 +28,12 @@ alias upclaude='curl -fsSL https://claude.ai/install.sh | bash -s stable'
 HISTSIZE=100000
 HISTFILE=~/.zsh_history
 SAVEHIST=100000
+HISTORY_IGNORE="(*password*|*token*|*secret*|*api_key*|*access_key*|*secret_key*|*authorization:*|base64 *|sha256sum *|md5sum *)"
+
+zshaddhistory() {
+  emulate -L zsh
+  [[ ${${1%%$'\n'}:l} != ${~HISTORY_IGNORE} ]]
+}
 
 setopt hist_ignore_all_dups # 重複するコマンドを削除
 setopt hist_ignore_dups # 直前と同じコマンドは追加しない
@@ -112,25 +118,11 @@ function usage_log_trim_command () {
   printf '%s' "$cmd"
 }
 
-function usage_log_is_safe () {
-  local cmd=$1
-  local lower_cmd="${cmd:l}"
-
-  case "$lower_cmd" in
-    ""|*token*|*secret*|*password*|\
-      *api_key*|*access_key*|*secret_key*)
-      return 1
-      ;;
-  esac
-
-  return 0
-}
-
 function usage_log_preexec () {
   local cmd
   cmd=$(usage_log_trim_command "$1")
 
-  if usage_log_is_safe "$cmd"; then
+  if [[ -n "$cmd" && ${cmd:l} != ${~HISTORY_IGNORE} ]]; then
     __usage_log_last_cmd="$cmd"
   else
     __usage_log_last_cmd=""
