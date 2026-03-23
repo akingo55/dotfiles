@@ -72,6 +72,9 @@ ABBR_GET_AVAILABLE_ABBREVIATION=1
 ABBR_LOG_AVAILABLE_ABBREVIATION=1
 ABBR_LOG_AVAILABLE_ABBREVIATION_AFTER=1
 
+# zsh-abbr cursor placement
+ABBR_SET_EXPANSION_CURSOR=1
+
 # zsh-abbr user abbreviations file
 export ABBR_USER_ABBREVIATIONS_FILE="$HOME/repo/dotfiles/config/zsh-abbr/user-abbreviations"
 
