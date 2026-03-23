@@ -11,7 +11,7 @@
     ],
     "deny": [
       "Read(./.env)",
-      "Read(./.ssh/**)",`
+      "Read(./.ssh/**)",
       "Read(./secrets/**)"
     ]
   },`
