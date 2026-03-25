@@ -1,2 +1,2 @@
-EXCLUDES="README.md initial_install.sh"
+EXCLUDES="README.md initial_install.sh config/zsh-abbr/user-abbreviations"
 DOTFILES_DIRS="$HOME/repo/dotfiles"

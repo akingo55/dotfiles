@@ -141,8 +141,7 @@ function usage_log_precmd () {
 
   __usage_log_last_cmd=""
 
-  (( exit_code == 0 )) || return
-  [[ -z "$cmd" ]] && return
+  (( exit_code == 0 )) && [[ -n "$cmd" ]] || return
 
   mkdir -p "${__usage_log_file:h}"
   printf '%s\t%s\n' "$EPOCHSECONDS" "$cmd" >> "$__usage_log_file"
