@@ -12,16 +12,6 @@ zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/shell/chpwd-recent-dirs"
 zstyle ':chpwd:*' recent-dirs-pushd true
 
 # alias
-#alias ll='ls -l'
-#alias la='ls -a'
-#alias lt='ls -lt'
-#alias hs='history'
-#alias du='du -h'
-#alias df='df -h'
-#alias mybr='git rev-parse --abbrev-ref @'
-#alias g-ph='git push origin `mybr`'
-#alias g=git
-#alias vim=nvim
 alias upclaude='curl -fsSL https://claude.ai/install.sh | bash -s stable'
 
 # history
@@ -36,7 +26,6 @@ zshaddhistory() {
 }
 
 setopt hist_ignore_all_dups # 重複するコマンドを削除
-setopt hist_ignore_dups # 直前と同じコマンドは追加しない
 setopt hist_no_store # historyコマンドは履歴に入れない
 setopt hist_reduce_blanks # 余分な余白を削除
 setopt correct # typoを教えてくれる
@@ -54,14 +43,15 @@ export FZF_DEFAULT_OPTS='--height 40% --tmux bottom,40% --layout reverse --borde
 
 # zsh-completions, zsh-abbr
 if type brew >/dev/null 2>&1; then
+  _brew_prefix="$(brew --prefix)"
   fpath=(
-    "$(brew --prefix)/share/zsh-abbr"
-    "$(brew --prefix)/share/zsh-completions"
+    "$_brew_prefix/share/zsh-abbr"
+    "$_brew_prefix/share/zsh-completions"
     $fpath
   )
 
-  # zsh-abbr
-  source /opt/homebrew/share/zsh-abbr/zsh-abbr.zsh
+  source "$_brew_prefix/share/zsh-abbr/zsh-abbr.zsh"
+  source "$_brew_prefix/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh"
 fi
 
 autoload -Uz compinit
@@ -84,7 +74,7 @@ ZSH_AUTOSUGGEST_STRATEGY=( abbreviations $ZSH_AUTOSUGGEST_STRATEGY )
 # enable fzf for ghq
 function fzf-github-dir () {
   local selected_dir=$(ghq list -p | fzf --query "$LBUFFER")
-  if [ -n "$selected_dir" ]; then
+  if [[ -n "$selected_dir" ]]; then
     BUFFER="cd ${selected_dir}"
     zle accept-line
   fi
@@ -97,7 +87,7 @@ bindkey '^]' fzf-github-dir
 # enable fzf for history
 function fzf-history () {
   local history_command=$(history -nr 1 | fzf --query "$LBUFFER")
-  if [ -n "$history_command" ]; then
+  if [[ -n "$history_command" ]]; then
     BUFFER=$history_command
     zle accept-line
   fi
@@ -109,24 +99,17 @@ bindkey '^h' fzf-history
 
 # enable cdr
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
-  add-zsh-hook chpwd chpwd_recent_dirs
+add-zsh-hook chpwd chpwd_recent_dirs
 
 # usage log for zsh-abbr suggestions
 typeset -g __usage_log_file="$HOME/.cache/shell/command-usage-$(date '+%Y-%m').log"
 typeset -g __usage_log_last_cmd=""
-
-function usage_log_trim_command () {
-  local cmd=$1
-
-  cmd="${cmd#"${cmd%%[![:space:]]*}"}"
-  cmd="${cmd%"${cmd##*[![:space:]]}"}"
-
-  printf '%s' "$cmd"
-}
+mkdir -p "${__usage_log_file:h}"
 
 function usage_log_preexec () {
-  local cmd
-  cmd=$(usage_log_trim_command "$1")
+  local cmd="$1"
+  cmd="${cmd#"${cmd%%[![:space:]]*}"}"
+  cmd="${cmd%"${cmd##*[![:space:]]}"}"
 
   if [[ -n "$cmd" && ${cmd:l} != ${~HISTORY_IGNORE} ]]; then
     __usage_log_last_cmd="$cmd"
@@ -143,7 +126,6 @@ function usage_log_precmd () {
 
   (( exit_code == 0 )) && [[ -n "$cmd" ]] || return
 
-  mkdir -p "${__usage_log_file:h}"
   printf '%s\t%s\n' "$EPOCHSECONDS" "$cmd" >> "$__usage_log_file"
 }
 
@@ -153,7 +135,7 @@ add-zsh-hook precmd usage_log_precmd
 # enable fzf for cdr
 function fzf-cdr () {
   local selected_dir=$(cdr -l | awk '{ print $2 }' | fzf)
-  if [ -n "$selected_dir" ]; then
+  if [[ -n "$selected_dir" ]]; then
     BUFFER=$selected_dir
     zle accept-line
   fi
@@ -167,6 +149,3 @@ bindkey '^[' fzf-cdr
 function cd() {
     builtin cd "$@" && ls
 }
-
-# zsh-autosuggestions-abbreviations-strategy
-source /opt/homebrew/share/zsh-autosuggestions-abbreviations-strategy/zsh-autosuggestions-abbreviations-strategy.zsh
