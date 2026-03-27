@@ -28,7 +28,7 @@ alias upclaude='curl -fsSL https://claude.ai/install.sh | bash -s stable'
 HISTSIZE=100000
 HISTFILE=~/.zsh_history
 SAVEHIST=100000
-HISTORY_IGNORE="(*password*|*token*|*secret*|*api_key*|*access_key*|*secret_key*|*authorization:*|base64 *|sha256sum *|md5sum *)"
+HISTORY_IGNORE="(*password*|*token*|*secret*|*api_key*|*access_key*|*secret_key*|*authorization:*)"
 
 zshaddhistory() {
   emulate -L zsh
