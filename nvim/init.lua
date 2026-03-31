@@ -31,6 +31,7 @@ opt.whichwrap = "b,s,h,l,<,>,[,]"
 opt.backspace = { "indent", "eol", "start" }
 opt.fileformats = { "unix", "dos", "mac" }
 opt.fileencodings = { "utf-8", "sjis" }
+opt.modeline = false
 
 vim.cmd([[syntax on]])
 vim.cmd([[filetype plugin indent on]])

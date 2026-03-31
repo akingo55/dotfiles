@@ -65,6 +65,8 @@ set fileformats=unix,dos,mac
 set fileencodings=utf-8,sjis
 " fzfをvimで使う
 set rtp+=/opt/homebrew/opt/fzf
+"" 脆弱性対策
+set nomodeline
 
 """"""""""""""""""""""""""""""
 " 行末の空白文字をハイライト
