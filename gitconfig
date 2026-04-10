@@ -17,6 +17,7 @@
   df = diff
   sw = switch
   rs = restore
+  br = branch
 
 [status]
   showUntrackedFiles = all
