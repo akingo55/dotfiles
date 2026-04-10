@@ -12,7 +12,7 @@ zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/shell/chpwd-recent-dirs"
 zstyle ':chpwd:*' recent-dirs-pushd true
 
 # alias
-alias upclaude='curl -fsSL https://claude.ai/install.sh | bash -s stable'
+alias beep='afplay /System/Library/Sounds/Ping.aiff'
 
 # history
 HISTSIZE=100000
