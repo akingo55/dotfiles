@@ -1,18 +1,23 @@
 {
-  "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true
-  },
   "permissions": {
     "allow": [
       "Read(~/.zshrc)",
       "Read(~/.claude/**)",
-      "Read(./repo/**)"
+      "Read(~/repo/**)"
     ],
     "deny": [
-      "Read(./.env)",
-      "Read(./.ssh/**)",
-      "Read(./secrets/**)"
+      "Read(**/.env)",
+      "Read(**/.ssh/**)",
+      "Read(**/secrets/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/credentials/**)",
+      "Read(**/.aws/**)",
+      "Read(**/config/database.yml)",
+      "Read(**/config/credentials.json)",
+      "Bash(sudo *)",
+      "Bash(chmod *)",
+      "Bash(rm -rf *)"
     ]
   },
   "hooks": {
@@ -27,5 +32,10 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  },
+  "editorMode": "vim"
 }
